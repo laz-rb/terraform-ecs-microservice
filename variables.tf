@@ -49,11 +49,11 @@ variable "assign_public_ip" {
   default     = false
 }
 
-variable "host_headers" {
+/* variable "host_headers" {
   description = "(Optional) Contains a single values item which is a list of host header patterns to match. The maximum size of each pattern is 128 characters. Comparison is case insensitive. Wildcard characters supported: * (matches 0 or more characters) and ? (matches exactly 1 character). Only one pattern needs to match for the condition to be satisfied."
   type        = list(string)
   default     = null
-}
+} */
 
 variable "parameter_paths" {
   description = "The parameters paths on an AWS Account that will be part of a generated policy for read-only access."
@@ -252,6 +252,10 @@ variable "slow_start" {
   default     = 30
 }
 
+variable "health_check_enabled" {
+  description = "Enable health checks"
+  default = true
+}
 variable "health_check_interval" {
   description = "Interval in seconds health should be checked. ex. 10"
   default     = 10

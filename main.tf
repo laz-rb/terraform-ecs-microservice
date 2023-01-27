@@ -14,15 +14,15 @@ data "aws_lb" "service" {
   arn = data.aws_lb_listener.service.load_balancer_arn
 }
 
-data "aws_route53_zone" "selected" {
+/* data "aws_route53_zone" "selected" {
   count   = var.zone_id == null ? 0 : 1
   zone_id = var.zone_id
-}
+} */
 
-data "aws_secretsmanager_secret" "secrets" {
+/* data "aws_secretsmanager_secret" "secrets" {
   count = length(var.secrets)
   arn   = var.secrets[count.index].valueFrom
-}
+} */
 
 resource "aws_lb_target_group" "service" {
   count                = var.create ? 1 : 0
@@ -35,7 +35,7 @@ resource "aws_lb_target_group" "service" {
   slow_start           = var.slow_start
 
   health_check {
-    enabled             = true
+    enabled             = var.health_check_enabled
     interval            = var.health_check_interval
     path                = var.health_check_path
     timeout             = var.health_check_timeout
@@ -65,11 +65,11 @@ resource "aws_lb_listener_rule" "service" {
       values = var.path_patterns
     }
   }
-  condition {
+  /* condition {
     host_header {
       values = var.host_headers != null ? var.host_headers : var.dns_name != null ? ["${var.dns_name}.${join("", data.aws_route53_zone.selected.*.name)}"] : ["${var.name}.${join("", data.aws_route53_zone.selected.*.name)}"]
     }
-  }
+  } */
   priority = var.priority
   tags     = merge(var.tags, var.lb_listener_rule_tags)
 }
@@ -127,7 +127,7 @@ EOF
 
 data "aws_iam_policy_document" "task_role_policy" {
 
-  statement {
+  /* statement {
     actions = [
       "ssmmessages:CreateControlChannel",
       "ssmmessages:CreateDataChannel",
@@ -137,7 +137,7 @@ data "aws_iam_policy_document" "task_role_policy" {
     resources = [
       "*"
     ]
-  }
+  } */
 
   statement {
     actions = [
@@ -247,7 +247,7 @@ data "aws_iam_policy_document" "ecs_role_policy" {
     ]
   }
 
-  dynamic "statement" {
+  /* dynamic "statement" {
     for_each = var.dockerhub_secret_arn == "" ? [] : [1]
     content {
       actions = [
@@ -257,7 +257,7 @@ data "aws_iam_policy_document" "ecs_role_policy" {
         var.dockerhub_secret_arn
       ]
     }
-  }
+  } */
 }
 
 resource "aws_iam_role_policy" "ecs" {
@@ -270,13 +270,13 @@ resource "aws_iam_role_policy" "ecs" {
 #------------------------------------------------------------------------------
 # ECS Service
 #------------------------------------------------------------------------------
-locals {
+/* locals {
   credentials = var.dockerhub_secret_arn == "" ? "" : <<EOF
     "repositoryCredentials": {
       "credentialsParameter": "${var.dockerhub_secret_arn}"
     },
 EOF
-}
+} */
 
 resource "aws_ecs_task_definition" "service" {
   count                    = var.create ? 1 : 0
@@ -315,7 +315,6 @@ resource "aws_ecs_task_definition" "service" {
         "awslogs-stream-prefix": "${var.name}"
       }
     },
-    ${local.credentials}
     "environment": ${jsonencode(var.environment_variables)},
     "secrets": ${jsonencode(var.secrets)}
   }

@@ -127,7 +127,7 @@ EOF
 
 data "aws_iam_policy_document" "task_role_policy" {
 
-  /* statement {
+  statement {
     actions = [
       "ssmmessages:CreateControlChannel",
       "ssmmessages:CreateDataChannel",
@@ -137,7 +137,7 @@ data "aws_iam_policy_document" "task_role_policy" {
     resources = [
       "*"
     ]
-  } */
+  }
 
   statement {
     actions = [

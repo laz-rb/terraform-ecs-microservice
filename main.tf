@@ -182,18 +182,18 @@ data "aws_iam_policy_document" "task_role_policy" {
     }
   }
 
-  statement {
+  /* statement {
     actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
     resources = data.aws_secretsmanager_secret.secrets.*.arn
-  }
+  } */
 
-  statement {
+  /* statement {
     actions   = ["kms:Decrypt"]
     resources = distinct(data.aws_secretsmanager_secret.secrets.*.kms_key_id)
-  }
+  } */
 }
 
 resource "aws_iam_role_policy" "task" {

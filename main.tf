@@ -470,7 +470,7 @@ resource "aws_cloudwatch_log_metric_filter" "this" {
   count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
 
   name           = "${var.name}-error"
-  pattern        = "ERROR"
+  pattern        = "\"ERROR\""
   log_group_name = aws_cloudwatch_log_group.service[count.index].name
 
   metric_transformation {

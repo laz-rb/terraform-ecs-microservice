@@ -470,15 +470,14 @@ resource "aws_cloudwatch_log_metric_filter" "this" {
   count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
 
   name           = "${var.name}-error"
-  pattern        = "\"ERROR\""
+  pattern        = "ERROR"
   log_group_name = aws_cloudwatch_log_group.service[count.index].name
 
   metric_transformation {
     name          = "ErrorCount"
     namespace     = "${var.name}"
     value         = "1"
-    default_value = null
-    unit          = null
+    unit          = "Count"
   }
 }
 
@@ -487,33 +486,33 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
 
   alarm_name        = "${var.name}-error"
-  alarm_description = "Log errors count"
+  alarm_description = "Counts the error messages in logs"
   actions_enabled   = true
 
   alarm_actions             = [data.aws_sns_topic.this.arn]
-  ok_actions                = null
-  insufficient_data_actions = null
+  ok_actions                = [data.aws_sns_topic.this.arn]
+  # insufficient_data_actions = null
 
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "2"
   threshold           = var.error_threshold
-  unit                = "Count"
+  # unit                = "Count"
 
-  datapoints_to_alarm                   = null
-  treat_missing_data                    = "missing"
-  evaluate_low_sample_count_percentiles = null
+  # datapoints_to_alarm                   = null
+  # treat_missing_data                    = "missing"
+  # evaluate_low_sample_count_percentiles = null
 
   # conflicts with metric_query
   metric_name        = "${var.name}-error"
   namespace          = "${var.name}"
   period             = var.error_period
-  statistic          = "Sum"
-  extended_statistic = null
+  statistic          = "SampleCount"
+  # extended_statistic = null
 
-  dimensions = null
+  # dimensions = null
 
   # conflicts with metric_name
-  dynamic "metric_query" {
+  /* dynamic "metric_query" {
     for_each = var.metric_query
     content {
       id          = lookup(metric_query.value, "id")
@@ -534,8 +533,8 @@ resource "aws_cloudwatch_metric_alarm" "this" {
         }
       }
     }
-  }
-  threshold_metric_id = null
+  } */
+  # threshold_metric_id = null
 
   tags = merge(var.tags, var.cloudwatch_metric_alarm_tags)
 }

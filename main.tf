@@ -498,7 +498,7 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   threshold           = var.error_threshold
   # unit                = "Count"
 
-  # datapoints_to_alarm                   = null
+  datapoints_to_alarm                   = 1
   # treat_missing_data                    = "missing"
   # evaluate_low_sample_count_percentiles = null
 

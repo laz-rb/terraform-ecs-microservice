@@ -14,6 +14,10 @@ data "aws_lb" "service" {
   arn = data.aws_lb_listener.service.load_balancer_arn
 }
 
+data "aws_sns_topic" "this" {
+  name = var.sns_topic_name
+}
+
 /* data "aws_route53_zone" "selected" {
   count   = var.zone_id == null ? 0 : 1
   zone_id = var.zone_id
@@ -455,6 +459,81 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_low" {
 
   alarm_actions = [aws_appautoscaling_policy.down[count.index].arn]
   tags          = merge(var.tags, var.cloudwatch_metric_alarm_tags)
+}
+
+# CloudWatch log metric filter for Errors
+resource "aws_cloudwatch_log_metric_filter" "this" {
+  count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
+
+  name           = "${var.name}-error"
+  pattern        = "ERROR"
+  log_group_name = aws_cloudwatch_log_group.service.name
+
+  metric_transformation {
+    name          = "ErrorCount"
+    namespace     = "AWS/ECS"
+    value         = "1"
+    default_value = null
+    unit          = null
+  }
+}
+
+# CloudWatch alarm that is triggered by error filter counts
+resource "aws_cloudwatch_metric_alarm" "this" {
+  count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
+
+  alarm_name        = "${var.name}-error"
+  alarm_description = "Log errors count"
+  actions_enabled   = true
+
+  alarm_actions             = [data.aws_sns_topic.this.arn]
+  ok_actions                = null
+  insufficient_data_actions = null
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  threshold           = var.error_threshold
+  unit                = "Count"
+
+  datapoints_to_alarm                   = null
+  treat_missing_data                    = "missing"
+  evaluate_low_sample_count_percentiles = null
+
+  # conflicts with metric_query
+  metric_name        = "${var.name}-error"
+  namespace          = "AWS/ECS"
+  period             = var.error_period
+  statistic          = "Sum"
+  extended_statistic = null
+
+  dimensions = null
+
+  # conflicts with metric_name
+  dynamic "metric_query" {
+    for_each = var.metric_query
+    content {
+      id          = lookup(metric_query.value, "id")
+      account_id  = lookup(metric_query.value, "account_id", null)
+      label       = lookup(metric_query.value, "label", null)
+      return_data = lookup(metric_query.value, "return_data", null)
+      expression  = lookup(metric_query.value, "expression", null)
+
+      dynamic "metric" {
+        for_each = lookup(metric_query.value, "metric", [])
+        content {
+          metric_name = lookup(metric.value, "metric_name")
+          namespace   = lookup(metric.value, "namespace")
+          period      = lookup(metric.value, "period")
+          stat        = lookup(metric.value, "stat")
+          unit        = lookup(metric.value, "unit", null)
+          dimensions  = lookup(metric.value, "dimensions", null)
+        }
+      }
+    }
+  }
+  threshold_metric_id = null
+
+  tags = merge(var.tags, var.cloudwatch_metric_alarm_tags)
 }
 
 # Optionally create a DNS record in the provided zone

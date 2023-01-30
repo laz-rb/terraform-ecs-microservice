@@ -356,7 +356,36 @@ variable "cloudwatch_metric_alarm_tags" {
   type        = map(string)
 }
 
+#------------------------------------------------------------------------------
+# CloudWatch Log Error Options
+#------------------------------------------------------------------------------
+variable "create_cloudwatch_log_metric_filter_and_alarm" {
+  description = "(Optional) Creates CloudWatch metric filter for errors and CloudWatch alarm"
+  default     = false
+  type        = bool
+}
+
+variable "sns_topic_name" {
+  description = "(Required if create_cloudwatch_log_metric_filter_and_alarm) SNS topic where error alarms will be subscribed"
+}
+
+variable "error_threshold" {
+  description = "(Required if create_cloudwatch_log_metric_filter_and_alarm) The value against which the specified statistic is compared."
+  type        = number
+  default     = null
+}
+
+variable "error_period" {
+  description = "(Required if create_cloudwatch_log_metric_filter_and_alarm) The period in seconds over which the specified statistic is applied."
+  type        = string
+  default     = null
+}
 
 
+variable "metric_query" {
+  description = "(Optional if create_cloudwatch_log_metric_filter_and_alarm) Enables you to create an alarm based on a metric math expression. You may specify at most 20."
+  type        = any
+  default     = []
+}
 
 

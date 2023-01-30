@@ -471,7 +471,7 @@ resource "aws_cloudwatch_log_metric_filter" "this" {
 
   name           = "${var.name}-error"
   pattern        = "ERROR"
-  log_group_name = aws_cloudwatch_log_group.service.name
+  log_group_name = aws_cloudwatch_log_group.service[count.index].name
 
   metric_transformation {
     name          = "ErrorCount"

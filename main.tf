@@ -461,6 +461,10 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_low" {
   tags          = merge(var.tags, var.cloudwatch_metric_alarm_tags)
 }
 
+#------------------------------------------------------------------------------
+# CloudWatch Error Alarm Options
+#------------------------------------------------------------------------------
+
 # CloudWatch log metric filter for Errors
 resource "aws_cloudwatch_log_metric_filter" "this" {
   count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0

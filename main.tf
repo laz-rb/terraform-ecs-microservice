@@ -475,7 +475,7 @@ resource "aws_cloudwatch_log_metric_filter" "this" {
 
   metric_transformation {
     name          = "ErrorCount"
-    namespace     = "AWS/ECS"
+    namespace     = "${var.name}"
     value         = "1"
     default_value = null
     unit          = null
@@ -505,7 +505,7 @@ resource "aws_cloudwatch_metric_alarm" "this" {
 
   # conflicts with metric_query
   metric_name        = "${var.name}-error"
-  namespace          = "AWS/ECS"
+  namespace          = "${var.name}"
   period             = var.error_period
   statistic          = "Sum"
   extended_statistic = null

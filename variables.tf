@@ -381,6 +381,11 @@ variable "error_period" {
   default     = null
 }
 
+variable "error_evaluation_periods" {
+  description = "(Optional if create_cloudwatch_log_metric_filter_and_alarm) The number of periods over which data is compared to the specified threshold."
+  type        = string
+}
+
 variable "metric_query" {
   description = "(Optional if create_cloudwatch_log_metric_filter_and_alarm) Enables you to create an alarm based on a metric math expression. You may specify at most 20."
   type        = any

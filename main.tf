@@ -474,7 +474,7 @@ resource "aws_cloudwatch_log_metric_filter" "this" {
   log_group_name = aws_cloudwatch_log_group.service[count.index].name
 
   metric_transformation {
-    name          = "ErrorCount"
+    name          = "${var.name}-error"
     namespace     = "${var.name}"
     value         = "1"
     unit          = "Count"
@@ -486,27 +486,27 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
 
   alarm_name        = "${var.name}-error"
-  alarm_description = "Counts the error messages in logs"
+  alarm_description = "Counts error messages in logs"
   actions_enabled   = true
 
   alarm_actions             = [data.aws_sns_topic.this.arn]
-  ok_actions                = [data.aws_sns_topic.this.arn]
+  # ok_actions                = [data.aws_sns_topic.this.arn]
   # insufficient_data_actions = null
 
-  comparison_operator = "LessThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = var.error_evaluation_periods
   threshold           = var.error_threshold
   # unit                = "Count"
 
   datapoints_to_alarm                   = 1
-  # treat_missing_data                    = "missing"
+  treat_missing_data                    = "missing"
   # evaluate_low_sample_count_percentiles = null
 
   # conflicts with metric_query
   metric_name        = "${var.name}-error"
   namespace          = "${var.name}"
   period             = var.error_period
-  statistic          = "SampleCount"
+  statistic          = "Sum"
   # extended_statistic = null
 
   # dimensions = null

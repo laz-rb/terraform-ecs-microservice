@@ -490,51 +490,19 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   actions_enabled   = true
 
   alarm_actions             = [data.aws_sns_topic.this.arn]
-  # ok_actions                = [data.aws_sns_topic.this.arn]
-  # insufficient_data_actions = null
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = var.error_evaluation_periods
   threshold           = var.error_threshold
-  # unit                = "Count"
 
   datapoints_to_alarm                   = 1
   treat_missing_data                    = "missing"
-  # evaluate_low_sample_count_percentiles = null
 
   # conflicts with metric_query
   metric_name        = "${var.name}-error"
   namespace          = "${var.name}"
   period             = var.error_period
   statistic          = "Sum"
-  # extended_statistic = null
-
-  # dimensions = null
-
-  # conflicts with metric_name
-  /* dynamic "metric_query" {
-    for_each = var.metric_query
-    content {
-      id          = lookup(metric_query.value, "id")
-      account_id  = lookup(metric_query.value, "account_id", null)
-      label       = lookup(metric_query.value, "label", null)
-      return_data = lookup(metric_query.value, "return_data", null)
-      expression  = lookup(metric_query.value, "expression", null)
-
-      dynamic "metric" {
-        for_each = lookup(metric_query.value, "metric", [])
-        content {
-          metric_name = lookup(metric.value, "metric_name")
-          namespace   = lookup(metric.value, "namespace")
-          period      = lookup(metric.value, "period")
-          stat        = lookup(metric.value, "stat")
-          unit        = lookup(metric.value, "unit", null)
-          dimensions  = lookup(metric.value, "dimensions", null)
-        }
-      }
-    }
-  } */
-  # threshold_metric_id = null
 
   tags = merge(var.tags, var.cloudwatch_metric_alarm_tags)
 }

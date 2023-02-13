@@ -367,6 +367,8 @@ variable "create_cloudwatch_log_metric_filter_and_alarm" {
 
 variable "sns_topic_name" {
   description = "(Required if create_cloudwatch_log_metric_filter_and_alarm) SNS topic where error alarms will be subscribed"
+  type        = string
+  default     = ""
 }
 
 variable "error_threshold" {
@@ -384,6 +386,7 @@ variable "error_period" {
 variable "error_evaluation_periods" {
   description = "(Optional if create_cloudwatch_log_metric_filter_and_alarm) The number of periods over which data is compared to the specified threshold."
   type        = string
+  default     = "1"
 }
 
 variable "metric_query" {

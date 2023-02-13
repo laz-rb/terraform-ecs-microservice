@@ -15,6 +15,7 @@ data "aws_lb" "service" {
 }
 
 data "aws_sns_topic" "this" {
+  count = var.create_cloudwatch_log_metric_filter_and_alarm ? 1 : 0
   name = var.sns_topic_name
 }
 
@@ -489,7 +490,7 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   alarm_description = "Counts error messages in logs"
   actions_enabled   = true
 
-  alarm_actions             = [data.aws_sns_topic.this.arn]
+  alarm_actions             = [data.aws_sns_topic.this[count.index].arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = var.error_evaluation_periods
